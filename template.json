@@ -248,7 +248,7 @@
       "startCommand": null,
       "preDeployCommand": null,
       "healthcheckPath": "/metrics",
-      "healthcheckTimeout": 900,
+      "healthcheckTimeout": 1200,
       "restartPolicyType": "ALWAYS",
       "numReplicas": 1,
       "cronSchedule": null,
@@ -269,7 +269,12 @@
         },
         "SPICEDB_DATASTORE_CONN_URI": {
           "defaultValue": "postgresql://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/spicedb?sslmode=disable",
-          "description": "SpiceDB datastore: database 'spicedb' on the project Postgres (created by Formbricks).",
+          "description": "SpiceDB datastore: database 'spicedb' on the project Postgres (created on first start).",
+          "required": false
+        },
+        "SPICEDB_ADMIN_DATABASE_URL": {
+          "defaultValue": "postgresql://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}?sslmode=disable",
+          "description": "Default database, used once to create the 'spicedb' database.",
           "required": false
         }
       }
