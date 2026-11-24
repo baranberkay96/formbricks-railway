@@ -59,7 +59,7 @@ The instance is closed: there is no public sign-up, and nobody can claim the set
 
 **Scaling and versions.** Images are pinned by digest (Formbricks and Cube in `services/*/Dockerfile`, Hub in the template, SpiceDB in `services/spicedb/Dockerfile`). To upgrade, follow the Formbricks release notes, back up Postgres, move the images to the matching release and redeploy; migrations run on start. Hub and Hub Worker must use the same image.
 
-**Resources.** Measured idle RAM is listed in TEMPLATE.md in the repository. Hobby is recommended; see TEMPLATE.md for Trial limits.
+**Resources.** Measured idle on Railway: Formbricks 0.5–0.72 GB, Postgres 0.19 GB, Cube 0.09 GB, SpiceDB, Redis, Hub and Hub Worker under 0.05 GB each; about 1.1 GB in total, roughly $12–25 per month. The web service can pass Trial's 1 GB limit under load, so Hobby is recommended.
 
 **License.** Formbricks' core is AGPL-3.0; code in `apps/web/modules/ee` is under the Formbricks Enterprise license and its features need a license key (the free community features work without one). SpiceDB and Hub are Apache-2.0. This is a community template; it is not affiliated with Formbricks GmbH.
 

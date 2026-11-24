@@ -51,15 +51,29 @@
 
 ## Resources
 
-To be measured on the test deploy (see the report).
+Measured on Railway (2026-11-24, after login, organization creation and SpiceDB preparation):
+
+| Service | Idle RAM | CPU idle |
+|---|---|---|
+| Formbricks | 0.50–0.72 GB | < 0.01 vCPU |
+| Postgres | 0.14–0.19 GB | < 0.01 |
+| Cube | 0.09 GB | ~0 |
+| SpiceDB | 0.05 GB | ~0 |
+| Redis | 0.05 GB | < 0.01 |
+| Hub Worker | 0.03 GB | < 0.01 |
+| Hub | 0.01 GB | ~0 |
+
+Total ≈ 1.13 GB idle → ≈ $12/month idle RAM plus Bucket storage; ≈ $15–25/month with real traffic. Each service is under Trial's 1 GB limit at idle; the Formbricks web service can exceed 1 GB under load (upstream sizes it for 2 GB), so Hobby is recommended.
 
 ## Verification checklist
 
-- [ ] All services SUCCESS; `/health` 200 on the public URL.
-- [ ] Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`; create an organization and a link survey; answer it anonymously; response visible.
-- [ ] `/setup` / sign-up refused for strangers.
-- [ ] Upload an image in a survey (Bucket), image served.
-- [ ] Odd values (short password, bad e-mail) do not fail the deploy.
+- [x] All 7 services SUCCESS, `/health` 200 (after two fixes: Hub must migrate after Formbricks — Prisma P3005 on a non-empty schema; SpiceDB now creates its own database instead of waiting for Formbricks).
+- [x] Login of the SQL-bootstrapped admin through Better Auth (`/api/auth/sign-in/email` 200, pgcrypto bcrypt hash accepted); root redirects to organization setup.
+- [x] Organization created through Formbricks' own server action; default workspace created; organization settings pages authorize (SpiceDB as decision engine, `formbricks-authzed upgrade prepare` logged success).
+- [x] Strangers: setup wizard requires login; Better Auth's native `/sign-up/email` 404.
+- [x] Bucket CORS rule set by the start script (`PutBucketCors` 200 on the Railway Bucket).
+- [x] Odd values (`ADMIN_PASSWORD=abc`, `ADMIN_EMAIL=Not An Email`): SUCCESS with warnings.
+- [ ] Not done: survey creation/response and an image upload end to end (needs the UI; the community edition allows one workspace, which onboarding creates).
 
 ## Open questions
 
