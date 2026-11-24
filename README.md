@@ -1,5 +1,7 @@
 # Deploy and Host Formbricks with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/formbricks-62-surveys-postgres-spicedb-h?referralCode=20H68q)
+
 Formbricks is an open-source survey and experience-management platform: link surveys, website and in-app surveys, NPS and feedback analysis. This template runs Formbricks 6.2 with its complete self-hosting stack: the web app, SpiceDB authorization, the Formbricks Hub API and worker, Cube analytics, PostgreSQL 18, Redis and a Railway Bucket for uploads.
 
 ## About Hosting Formbricks
