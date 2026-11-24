@@ -279,10 +279,10 @@
       "source": {
         "image": "ghcr.io/formbricks/hub:0.14.3@sha256:63b85da9a0eb4346dd9350cd2bc82e9fe00b195756ad9a4bd50195ba874d10bc"
       },
-      "startCommand": "/bin/sh -c 'i=0; until /usr/local/bin/goose -dir /app/migrations postgres \"$DATABASE_URL\" up && /usr/local/bin/river migrate-up --database-url \"$DATABASE_URL\"; do i=$((i+1)); if [ $i -ge 180 ]; then echo \"Hub migrations still failing after 15 minutes\"; exit 1; fi; echo \"waiting for Postgres / Formbricks migrations ($i)\"; sleep 5; done; exec /app/hub-api'",
+      "startCommand": "/bin/sh -c 'i=0; until wget -q -O /dev/null \"$FORMBRICKS_HEALTH_URL\"; do i=$((i+1)); if [ $i -ge 360 ]; then echo \"Formbricks not healthy after 30 minutes; exiting\"; exit 1; fi; echo \"waiting for Formbricks migrations ($i)\"; sleep 5; done; i=0; until /usr/local/bin/goose -dir /app/migrations postgres \"$DATABASE_URL\" up && /usr/local/bin/river migrate-up --database-url \"$DATABASE_URL\"; do i=$((i+1)); if [ $i -ge 60 ]; then echo \"Hub migrations still failing\"; exit 1; fi; sleep 5; done; exec /app/hub-api'",
       "preDeployCommand": null,
       "healthcheckPath": "/health",
-      "healthcheckTimeout": 1200,
+      "healthcheckTimeout": 1800,
       "restartPolicyType": "ALWAYS",
       "numReplicas": 1,
       "cronSchedule": null,
@@ -319,6 +319,11 @@
         "LOG_FORMAT": {
           "defaultValue": "json",
           "description": "Log format.",
+          "required": false
+        },
+        "FORMBRICKS_HEALTH_URL": {
+          "defaultValue": "http://${{Formbricks.RAILWAY_PRIVATE_DOMAIN}}:3000/health",
+          "description": "Hub waits for Formbricks (its migrations must run first on the shared database).",
           "required": false
         }
       }

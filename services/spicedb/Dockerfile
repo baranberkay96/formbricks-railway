@@ -5,7 +5,6 @@ FROM ${SPICEDB_IMAGE} AS spicedb
 
 FROM alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
 COPY --from=spicedb /usr/local/bin/spicedb /usr/local/bin/spicedb
-COPY --from=spicedb /bin/grpc_health_probe /usr/local/bin/grpc_health_probe
 COPY --chmod=0755 railway-spicedb.sh /usr/local/bin/railway-spicedb.sh
 RUN adduser -D -H -u 10001 spicedb
 USER spicedb
