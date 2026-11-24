@@ -1,0 +1,603 @@
+{
+  "name": "Formbricks 6.2 Surveys (Postgres, SpiceDB, Hub, Cube, S3)",
+  "idSeed": "Formbricks 6.2 Surveys (Postgres, SpiceDB, Hub, Cube, S3)",
+  "description": "Open-source surveys and forms with the full v6 stack and Bucket uploads.",
+  "category": "Analytics",
+  "tags": [
+    "formbricks",
+    "surveys",
+    "forms",
+    "feedback",
+    "nps",
+    "experience-management",
+    "postgres",
+    "self-hosted"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+  "upstream": {
+    "repo": "formbricks/formbricks",
+    "version": "6.2.2",
+    "license": "AGPL-3.0 (core), Formbricks EE license (apps/web/modules/ee)",
+    "images": {
+      "web": "ghcr.io/formbricks/formbricks:6.2.2@sha256:b35e7b1fa7d001379282b5c0ed37daf740da6ca4d170593d52052b9aaed8ed04 (released 2026-11-20)",
+      "hub": "ghcr.io/formbricks/hub:0.14.3@sha256:63b85da9a0eb4346dd9350cd2bc82e9fe00b195756ad9a4bd50195ba874d10bc",
+      "cube": "ghcr.io/formbricks/cube:1.8.8-3@sha256:dbe4b87e37e54e634e8cb3e8b6fd1d5cb9e2d84fe6225abbec9cb715c71fe50e",
+      "spicedb": "authzed/spicedb:v1.57.0@sha256:a170d372c9f6b921bb6849064df6ca3566dd5b174882c1a2c4300c2ae1d60efd",
+      "postgres": "ghcr.io/railwayapp-templates/postgres-ssl:18.6@sha256:4fc833b43d2aaf6ecc9b18615f5533602b723a32d0e2efe2dae8ca0f7217c863",
+      "redis": "redis:8.2.11@sha256:b0b01167ff47bc3868e56a967895a26be4230891a1f42a78ab61cdd227accc8d"
+    },
+    "checked": "2026-11-24"
+  },
+  "services": {
+    "Formbricks": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+      "source": {
+        "repo": "baranberkay96/formbricks-railway",
+        "rootDirectory": "/services/web"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": true,
+      "targetPort": 3000,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "ADMIN_EMAIL": {
+          "defaultValue": "",
+          "description": "E-mail of the first admin account, created on the first start.",
+          "required": true
+        },
+        "ADMIN_PASSWORD": {
+          "defaultValue": "${{secret(24, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Password of the first admin (8-128 characters). Change it in the app after the first login.",
+          "required": false
+        },
+        "ADMIN_NAME": {
+          "defaultValue": "Admin",
+          "description": "Display name of the first admin.",
+          "required": false
+        },
+        "PORT": {
+          "defaultValue": "3000",
+          "description": "Port the web app listens on.",
+          "required": false
+        },
+        "WEBAPP_URL": {
+          "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+          "description": "Public URL of Formbricks. Change it (and the two below) when you add a custom domain.",
+          "required": false
+        },
+        "NEXTAUTH_URL": {
+          "defaultValue": "${{WEBAPP_URL}}",
+          "description": "Auth base URL (same as WEBAPP_URL).",
+          "required": false
+        },
+        "BETTER_AUTH_URL": {
+          "defaultValue": "${{WEBAPP_URL}}",
+          "description": "Auth base URL (same as WEBAPP_URL).",
+          "required": false
+        },
+        "BETTER_AUTH_SECRET": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "Session signing secret.",
+          "required": false
+        },
+        "NEXTAUTH_SECRET": {
+          "defaultValue": "${{BETTER_AUTH_SECRET}}",
+          "description": "Legacy name of the session secret (same value).",
+          "required": false
+        },
+        "ENCRYPTION_KEY": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "Key for encrypted fields (2FA, tokens). Do not change after first use.",
+          "required": false
+        },
+        "CRON_SECRET": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "Secret for internal scheduled API calls.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "${{Postgres.DATABASE_URL}}",
+          "description": "PostgreSQL connection string (private network).",
+          "required": false
+        },
+        "REDIS_URL": {
+          "defaultValue": "${{Redis.REDIS_URL}}?family=0",
+          "description": "Redis for cache, rate limits, audit log and job queues.",
+          "required": false
+        },
+        "HUB_API_URL": {
+          "defaultValue": "http://${{Hub.RAILWAY_PRIVATE_DOMAIN}}:8080",
+          "description": "Formbricks Hub API (private network).",
+          "required": false
+        },
+        "HUB_API_KEY": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "API key shared with Hub.",
+          "required": false
+        },
+        "CUBEJS_API_URL": {
+          "defaultValue": "http://${{Cube.RAILWAY_PRIVATE_DOMAIN}}:4000",
+          "description": "Cube analytics API (private network).",
+          "required": false
+        },
+        "CUBEJS_API_SECRET": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "JWT secret shared with Cube.",
+          "required": false
+        },
+        "CUBEJS_JWT_ISSUER": {
+          "defaultValue": "formbricks-web",
+          "description": "JWT issuer for Cube tokens.",
+          "required": false
+        },
+        "CUBEJS_JWT_AUDIENCE": {
+          "defaultValue": "formbricks-cube",
+          "description": "JWT audience for Cube tokens.",
+          "required": false
+        },
+        "AUTHZED_ENABLED": {
+          "defaultValue": "true",
+          "description": "SpiceDB authorization (required by Formbricks 6).",
+          "required": false
+        },
+        "AUTHZED_ENDPOINT": {
+          "defaultValue": "${{SpiceDB.RAILWAY_PRIVATE_DOMAIN}}:50051",
+          "description": "SpiceDB gRPC address (private network).",
+          "required": false
+        },
+        "AUTHZED_TOKEN": {
+          "defaultValue": "${{SpiceDB.SPICEDB_GRPC_PRESHARED_KEY}}",
+          "description": "SpiceDB preshared key.",
+          "required": false
+        },
+        "AUTHZED_INSECURE": {
+          "defaultValue": "true",
+          "description": "Plain gRPC inside the project's private network.",
+          "required": false
+        },
+        "AUTHZED_CONSISTENCY": {
+          "defaultValue": "fully_consistent",
+          "description": "SpiceDB read consistency (Formbricks 6 default).",
+          "required": false
+        },
+        "S3_ACCESS_KEY": {
+          "defaultValue": "${{Bucket.ACCESS_KEY_ID}}",
+          "description": "Railway Bucket access key.",
+          "required": false
+        },
+        "S3_SECRET_KEY": {
+          "defaultValue": "${{Bucket.SECRET_ACCESS_KEY}}",
+          "description": "Railway Bucket secret key.",
+          "required": false
+        },
+        "S3_REGION": {
+          "defaultValue": "${{Bucket.REGION}}",
+          "description": "Railway Bucket region.",
+          "required": false
+        },
+        "S3_BUCKET_NAME": {
+          "defaultValue": "${{Bucket.BUCKET}}",
+          "description": "Railway Bucket name.",
+          "required": false
+        },
+        "S3_ENDPOINT_URL": {
+          "defaultValue": "${{Bucket.ENDPOINT}}",
+          "description": "Railway Bucket endpoint.",
+          "required": false
+        },
+        "S3_FORCE_PATH_STYLE": {
+          "defaultValue": "0",
+          "description": "Railway Buckets use virtual-hosted-style URLs.",
+          "required": false
+        },
+        "EMAIL_VERIFICATION_DISABLED": {
+          "defaultValue": "1",
+          "description": "1: no verification e-mail on sign-up (no SMTP needed).",
+          "required": false
+        },
+        "MAIL_FROM": {
+          "defaultValue": "",
+          "description": "Optional sender address for invitations and notifications.",
+          "required": false
+        },
+        "SMTP_HOST": {
+          "defaultValue": "",
+          "description": "Optional SMTP server (outbound SMTP needs Railway Pro).",
+          "required": false
+        },
+        "SMTP_PORT": {
+          "defaultValue": "",
+          "description": "SMTP port, e.g. 587.",
+          "required": false
+        },
+        "SMTP_USER": {
+          "defaultValue": "",
+          "description": "SMTP user name.",
+          "required": false
+        },
+        "SMTP_PASSWORD": {
+          "defaultValue": "",
+          "description": "SMTP password.",
+          "required": false
+        },
+        "SMTP_SECURE_ENABLED": {
+          "defaultValue": "",
+          "description": "1 for implicit TLS (port 465).",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "30",
+          "description": "Grace period for in-flight requests on redeploy.",
+          "required": false
+        }
+      }
+    },
+    "SpiceDB": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+      "source": {
+        "repo": "baranberkay96/formbricks-railway",
+        "rootDirectory": "/services/spicedb"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/metrics",
+      "healthcheckTimeout": 900,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "9090",
+          "description": "Metrics/health port (Railway healthcheck).",
+          "required": false
+        },
+        "SPICEDB_GRPC_PRESHARED_KEY": {
+          "defaultValue": "${{secret(64, \"0123456789abcdef\")}}",
+          "description": "Preshared key Formbricks uses to call SpiceDB.",
+          "required": false
+        },
+        "SPICEDB_DATASTORE_CONN_URI": {
+          "defaultValue": "postgresql://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/spicedb?sslmode=disable",
+          "description": "SpiceDB datastore: database 'spicedb' on the project Postgres (created by Formbricks).",
+          "required": false
+        }
+      }
+    },
+    "Hub": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+      "source": {
+        "image": "ghcr.io/formbricks/hub:0.14.3@sha256:63b85da9a0eb4346dd9350cd2bc82e9fe00b195756ad9a4bd50195ba874d10bc"
+      },
+      "startCommand": "/bin/sh -c 'i=0; until /usr/local/bin/goose -dir /app/migrations postgres \"$DATABASE_URL\" up && /usr/local/bin/river migrate-up --database-url \"$DATABASE_URL\"; do i=$((i+1)); if [ $i -ge 180 ]; then echo \"Hub migrations still failing after 15 minutes\"; exit 1; fi; echo \"waiting for Postgres / Formbricks migrations ($i)\"; sleep 5; done; exec /app/hub-api'",
+      "preDeployCommand": null,
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Hub API port.",
+          "required": false
+        },
+        "API_KEY": {
+          "defaultValue": "${{Formbricks.HUB_API_KEY}}",
+          "description": "API key Formbricks uses to call Hub.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgresql://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}?sslmode=disable",
+          "description": "Shared Formbricks database (Hub tables live next to Formbricks').",
+          "required": false
+        },
+        "DATABASE_MAX_CONNS": {
+          "defaultValue": "10",
+          "description": "Connection pool size.",
+          "required": false
+        },
+        "LOG_LEVEL": {
+          "defaultValue": "info",
+          "description": "Log level.",
+          "required": false
+        },
+        "LOG_FORMAT": {
+          "defaultValue": "json",
+          "description": "Log format.",
+          "required": false
+        }
+      }
+    },
+    "Hub Worker": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+      "source": {
+        "image": "ghcr.io/formbricks/hub:0.14.3@sha256:63b85da9a0eb4346dd9350cd2bc82e9fe00b195756ad9a4bd50195ba874d10bc"
+      },
+      "startCommand": "/bin/sh -c 'until wget -q -O /dev/null \"$HUB_HEALTH_URL\"; do echo \"waiting for Hub\"; sleep 5; done; exec /app/hub-worker'",
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "API_KEY": {
+          "defaultValue": "${{Hub.API_KEY}}",
+          "description": "Same key as Hub.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "${{Hub.DATABASE_URL}}",
+          "description": "Same database as Hub.",
+          "required": false
+        },
+        "DATABASE_MAX_CONNS": {
+          "defaultValue": "5",
+          "description": "Connection pool size.",
+          "required": false
+        },
+        "HUB_HEALTH_URL": {
+          "defaultValue": "http://${{Hub.RAILWAY_PRIVATE_DOMAIN}}:8080/health",
+          "description": "Waited for before the worker starts (Hub runs the migrations).",
+          "required": false
+        },
+        "LOG_LEVEL": {
+          "defaultValue": "info",
+          "description": "Log level.",
+          "required": false
+        },
+        "LOG_FORMAT": {
+          "defaultValue": "json",
+          "description": "Log format.",
+          "required": false
+        }
+      }
+    },
+    "Cube": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/formbricks.svg",
+      "source": {
+        "repo": "baranberkay96/formbricks-railway",
+        "rootDirectory": "/services/cube"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/readyz",
+      "healthcheckTimeout": 900,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "4000",
+          "description": "Cube API port.",
+          "required": false
+        },
+        "CUBEJS_DB_TYPE": {
+          "defaultValue": "postgres",
+          "description": "Cube data source type.",
+          "required": false
+        },
+        "CUBEJS_DB_HOST": {
+          "defaultValue": "${{Postgres.RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Postgres host (private network).",
+          "required": false
+        },
+        "CUBEJS_DB_PORT": {
+          "defaultValue": "5432",
+          "description": "Postgres port.",
+          "required": false
+        },
+        "CUBEJS_DB_NAME": {
+          "defaultValue": "${{Postgres.POSTGRES_DB}}",
+          "description": "Formbricks database.",
+          "required": false
+        },
+        "CUBEJS_DB_USER": {
+          "defaultValue": "${{Postgres.POSTGRES_USER}}",
+          "description": "Postgres user.",
+          "required": false
+        },
+        "CUBEJS_DB_PASS": {
+          "defaultValue": "${{Postgres.POSTGRES_PASSWORD}}",
+          "description": "Postgres password.",
+          "required": false
+        },
+        "CUBEJS_API_SECRET": {
+          "defaultValue": "${{Formbricks.CUBEJS_API_SECRET}}",
+          "description": "JWT secret shared with Formbricks.",
+          "required": false
+        },
+        "CUBEJS_JWT_ISSUER": {
+          "defaultValue": "${{Formbricks.CUBEJS_JWT_ISSUER}}",
+          "description": "JWT issuer.",
+          "required": false
+        },
+        "CUBEJS_JWT_AUDIENCE": {
+          "defaultValue": "${{Formbricks.CUBEJS_JWT_AUDIENCE}}",
+          "description": "JWT audience.",
+          "required": false
+        },
+        "CUBEJS_DEFAULT_API_SCOPES": {
+          "defaultValue": "meta,data",
+          "description": "API scopes exposed to Formbricks.",
+          "required": false
+        },
+        "CUBEJS_EXTERNAL_DEFAULT": {
+          "defaultValue": "false",
+          "description": "No Cube Store (single replica, in-memory cache).",
+          "required": false
+        },
+        "CUBEJS_CACHE_AND_QUEUE_DRIVER": {
+          "defaultValue": "memory",
+          "description": "In-memory cache and queue.",
+          "required": false
+        },
+        "CUBEJS_DB_QUERY_TIMEOUT": {
+          "defaultValue": "60s",
+          "description": "Query timeout.",
+          "required": false
+        }
+      }
+    },
+    "Postgres": {
+      "icon": "https://devicons.railway.app/i/postgresql.svg",
+      "source": {
+        "image": "ghcr.io/railwayapp-templates/postgres-ssl:18.6@sha256:4fc833b43d2aaf6ecc9b18615f5533602b723a32d0e2efe2dae8ca0f7217c863"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ON_FAILURE",
+      "restartPolicyMaxRetries": 10,
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/var/lib/postgresql/data"
+      },
+      "variables": {
+        "PGDATA": {
+          "defaultValue": "/var/lib/postgresql/data/pgdata",
+          "description": "Location where the database will be initialized",
+          "required": false
+        },
+        "PGHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Railway Private Domain Name.",
+          "required": false
+        },
+        "PGPORT": {
+          "defaultValue": "5432",
+          "description": "Port to connect to Postgres.",
+          "required": false
+        },
+        "PGUSER": {
+          "defaultValue": "${{ POSTGRES_USER }}",
+          "description": "Required variable for Data panel",
+          "required": false
+        },
+        "PGDATABASE": {
+          "defaultValue": "${{POSTGRES_DB}}",
+          "description": "Required variable for the data panel.",
+          "required": false
+        },
+        "PGPASSWORD": {
+          "defaultValue": "${{POSTGRES_PASSWORD}}",
+          "description": "Required variable for Data panel",
+          "required": false
+        },
+        "POSTGRES_DB": {
+          "defaultValue": "railway",
+          "description": "Default database created when image is started.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgresql://${{PGUSER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{PGDATABASE}}",
+          "description": "Private connection URL used by Baserow.",
+          "required": false
+        },
+        "POSTGRES_USER": {
+          "defaultValue": "postgres",
+          "description": "User to connect to Postgres DB",
+          "required": false
+        },
+        "SSL_CERT_DAYS": {
+          "defaultValue": "820",
+          "description": "SSL certificate expiry in days.",
+          "required": false
+        },
+        "POSTGRES_PASSWORD": {
+          "defaultValue": "${{ secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\") }}",
+          "description": "Password to connect to DB",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Allow Postgres to cleanly shut down",
+          "required": false
+        }
+      }
+    },
+    "Redis": {
+      "icon": "https://cdn.sanity.io/images/sy1jschh/production/0ce0bfdcfbdbf69662b1116671f97c2dd788b655-157x157.svg",
+      "source": {
+        "image": "redis:8.2.11@sha256:b0b01167ff47bc3868e56a967895a26be4230891a1f42a78ab61cdd227accc8d"
+      },
+      "startCommand": "/bin/sh -c \"rm -rf $RAILWAY_VOLUME_MOUNT_PATH/lost+found/ && exec docker-entrypoint.sh redis-server --requirepass $REDIS_PASSWORD --save 60 1 --dir $RAILWAY_VOLUME_MOUNT_PATH\"",
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ON_FAILURE",
+      "restartPolicyMaxRetries": 10,
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "REDISHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private network hostname of the Redis service.",
+          "required": false
+        },
+        "REDISPORT": {
+          "defaultValue": "6379",
+          "description": "Port that Redis listens on.",
+          "required": false
+        },
+        "REDISUSER": {
+          "defaultValue": "default",
+          "description": "Username for authenticating with Redis.",
+          "required": false
+        },
+        "REDIS_PASSWORD": {
+          "defaultValue": "${{ secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\") }}",
+          "description": "Randomly generated password for authenticating with Redis.",
+          "required": false
+        },
+        "REDISPASSWORD": {
+          "defaultValue": "${{REDIS_PASSWORD}}",
+          "description": "Alias of REDIS_PASSWORD.",
+          "required": false
+        },
+        "REDIS_URL": {
+          "defaultValue": "redis://${{ REDISUSER }}:${{ REDIS_PASSWORD }}@${{ REDISHOST }}:${{ REDISPORT }}",
+          "description": "Private connection URL used by Baserow (cache, websockets, Celery broker).",
+          "required": false
+        }
+      }
+    }
+  },
+  "buckets": [
+    "Bucket"
+  ]
+}
